@@ -1,16 +1,22 @@
 import torch
 import random
 import numpy as np
+
+random.seed(0)
+np.random.seed(0)
+torch.manual_seed(0)
+torch.cuda.manual_seed(0)
+torch.backends.cudnn.deterministic = True
+
 from sklearn.model_selection import train_test_split
 from sklearn.datasets import load_wine
-
 import pandas as pd
 
 wine = load_wine()
 
-# df = pd.DataFrame(data=wine['data'], columns=wine['feature_names'])
-# pd.set_option('display.max_columns', None)
-# print(df)
+df = pd.DataFrame(data=wine['data'], columns=wine['feature_names'])
+pd.set_option('display.max_columns', None)
+print(df)
 
 features =  13# use 13 features
 
@@ -18,7 +24,9 @@ X_train, X_test, y_train, y_test = train_test_split(
     wine.data[:, :features], 
     wine.target, 
     test_size=0.3, 
-    shuffle=True)
+    shuffle=True,
+    random_state=42 
+)
 
 X_train = torch.FloatTensor(X_train)
 X_test = torch.FloatTensor(X_test)
@@ -55,7 +63,7 @@ wine_net = WineNet(n_input, n_hidden)
 loss = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(wine_net.parameters(), lr=1.0e-3)
 
-batch_size = 1 # choose different batch sizes
+batch_size = 32 # choose different batch sizes
 
 for epoch in range(2000):
     order = np.random.permutation(len(X_train))
